@@ -14,6 +14,9 @@ from xtts2.msg import english_stream_ttsAction, english_stream_ttsFeedback, engl
 
 try:
     from RealtimeTTS import TextToAudioStream, CoquiEngine
+    # added to check for torch as well (can removed)
+    import torch
+
     REALTIME_TTS_AVAILABLE = True
 except ImportError:
     REALTIME_TTS_AVAILABLE = False
@@ -45,10 +48,15 @@ class TTSActionServer:
 
         # Initialize Coqui XTTS engine
         try:
+            # (can be removed)
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            rospy.loginfo(f"Initializing XTTS on {device}")
+            
             engine = CoquiEngine(
                 model_name="tts_models/multilingual/multi-dataset/xtts_v2",
                 voice=voice_path,
-                language="en"
+                language="en",
+                device=device
             )
             
             # Audio chunk queue for streaming
