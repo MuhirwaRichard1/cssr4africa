@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 """
-text_to_speech_application.py - ROS node for integrated multilingual text-to-speech
+text_to_speech_application.py - ROS node for integrated multilingual text-to-speech functionality
 
 Author:     Muhirwa Richard
-Date:       2026-04-27
+Date:       2026-05-25
 Version:    v1.1
 
 Copyright (C) 2023 CSSR4Africa Consortium
@@ -18,35 +18,73 @@ This program comes with ABSOLUTELY NO WARRANTY.
 """
 
 """
-> HOW THIS NODE WORKS
+> text_to_speech_application.py - ROS node for integrated multilingual text-to-speech functionality
 
-The textToSpeech node provides multilingual speech synthesis (Kinyarwanda and
-English) for the robot. On startup it loads both TTS models via
-TTSImplementation, then exposes one or both ROS interfaces depending on the
-'interface' setting in the configuration file.
+This ROS application node provides text-to-speech (TTS) services and actions supporting both Kinyarwanda and English languages.
+The node integrates with Pepper robot's audio system and a local host playback path, using a fine-tuned YourTTS
+model for Kinyarwanda and the XTTS v2 model for English. It exposes a ROS service and/or action interface that
+accept text messages and language specifications, then generate and play the corresponding speech audio.
 
-  1. A client sends text + language through the service or action interface
-     (both bound to /textToSpeech/say_text).
+> Libraries
+    - rospy
+    - actionlib
+    - os
+    - sys
+    - text_to_speech_implementation
+    - cssr_system.srv: (TTS, TTSResponse)
+    - cssr_system.msg: (TTSAction, TTSFeedback, TTSResult)
 
-  2. TTSImplementation.synthesize() routes the request to the correct model:
-       - kinyarwanda -> fine-tuned YourTTS model (models/rw_model)
-       - english     -> XTTS v2 model (englishModelPath)
-     and writes the result to a temporary WAV file.
+> Parameters
+    > Command line parameters:
+        None
+    > Configuration File Parameters
+        - language: (english/kinyarwanda)
+        - interface: (service/action/both)
+        - playback_mode: (naoqi/local)
+        - verboseMode: (True/False)
+        - ip: Network IP address of the Pepper robot
+        - port: Communication port for robot connection
+        - useCuda: (True/False)
+        - englishSpeakerWav: Optional speaker reference WAV for English synthesis
 
-  3. The WAV is played back according to 'playback_mode':
-       - naoqi -> streamed to the robot via the Python 2 helper
-                  (send_and_play_audio.py) over the configured IP/port
-       - local -> played on the host machine using paplay
+> Subscribed Topics
+    - None
 
-  4. The temporary audio file is deleted once playback finishes.
+> Published Topics and Message Types
+    - None (audio is played directly, not published)
 
-The service replies with a simple success flag, while the action interface adds
-progress feedback, preemption support, and the synthesized file path in its
-result.
+> Services Invoked
+    - None
 
-> Example
-  rosrun cssr_system text_to_speech_application.py
-  roslaunch cssr_system text_to_speech_launch_robot.launch
+> Services Advertised and Request Message
+    - /textToSpeech/say_text (cssr_system/TTS)
+      Request: {string message, string language}
+      Response: {bool success}
+
+> Actions Advertised and Goal Message
+    - /textToSpeech/say_text (cssr_system/TTSAction)
+      Goal:     {string text, string language}
+      Feedback: {string status, float32 progress}
+      Result:   {bool success, string message, string audio_file_path}
+
+> Input Data Files
+    - None
+
+> Output Data Files
+    - Temporary .wav files: Generated audio files for speech synthesis (auto-deleted)
+    - ROS log files: Node operation logs in ~/.ros/log/
+
+> Configuration Files
+    - text_to_speech_configuration.ini
+
+> Example Instantiation of the Module
+    - rosrun cssr_system text_to_speech_application.py
+    - roslaunch cssr_system text_to_speech_launch_robot.launch
+
+- Author:  Muhirwa Richard, Carnegie Mellon University Africa
+- Email:   muhirwarichard1@gmail.com
+- Date:    2026-05-25
+- Version: v1.1
 """
 
 import os
