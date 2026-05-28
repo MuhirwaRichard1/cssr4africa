@@ -78,14 +78,14 @@ Accompanying this code is the deliverable report that provides a detailed explan
    git clone https://huggingface.co/cssr4africa/cssr4africa_models
 
    # Copy the Kinyarwanda model files to the model/ directory:
-   mkdir -p ~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/model
-   unzip cssr4africa_models/text_to_speech/model.zip -d ~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech
+   mkdir -p ~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/models/rw_model
+   unzip cssr4africa_models/text_to_speech/model.zip -d ~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/models/rw_model
    ```
 
    Verify the Kinyarwanda model files are in place:
 
    ```bash
-   ls ~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/model
+   ls ~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/models/rw_model
    # Expected: model.pth  config.json  speakers.pth  SE_checkpoint.pth.tar  config_se.json  conditioning_audio.wav
    ```
 
@@ -97,13 +97,13 @@ Accompanying this code is the deliverable report that provides a detailed explan
    python3 -c "
    import os
    from huggingface_hub import snapshot_download
-   snapshot_download(repo_id='coqui/XTTS-v2', local_dir=os.path.expanduser('~/models/v2.0.2'))
+   snapshot_download(repo_id='coqui/XTTS-v2', local_dir=os.path.expanduser('~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/models/en_model/v2.0.2/'))
    "
    ```
 
-   Alternatively, download manually from https://huggingface.co/coqui/XTTS-v2 and place the files under `~/models/v2.0.2/`.
+   Alternatively, download manually from https://huggingface.co/coqui/XTTS-v2 and place the files under `~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/models/en_model/v2.0.2/`.
 
-   Expected contents of `~/models/v2.0.2/`:
+   Expected contents of `/en_model/v2.0.2/`:
    ```
    config.json   model.pth   vocab.json   speakers_xtts.pth   dvae.pth
    ```
@@ -124,8 +124,8 @@ Accompanying this code is the deliverable report that provides a detailed explan
    | `ip` | Pepper robot IP address (used when `playback_mode = naoqi`) | e.g., `172.29.111.240` |
    | `port` | Robot communication port (used when `playback_mode = naoqi`) | `9559` (default) |
    | `useCuda` | Enable GPU acceleration for synthesis | `True` or `False` |
-   | `kinyarwandaModelPath` | Path to the Kinyarwanda YourTTS model directory | e.g., `/home/<user>/workspace/.../text_to_speech/model` |
-   | `englishModelPath` | Path to the XTTS v2 model directory | e.g., `/home/<user>/models/v2.0.2` |
+   | `kinyarwandaModelPath` | Path to the Kinyarwanda YourTTS model directory | e.g., `/home/<user>/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/models/rw_model` |
+   | `englishModelPath` | Path to the XTTS v2 model directory | e.g., `/home/<user>/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/models/en_model/v2.0.2` |
    | `englishSpeakerWav` | Speaker reference WAV for XTTS v2 voice cloning (optional) | Absolute path to a `.wav` file; leave empty to use the Kinyarwanda conditioning audio |
 
    **Interface options explained:**
@@ -140,7 +140,7 @@ Accompanying this code is the deliverable report that provides a detailed explan
 
    Open the model configuration file:
    ```bash
-   nano ~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/model/config.json
+   nano ~/workspace/pepper_rob_ws/src/cssr4africa/cssr_system/text_to_speech/models/rw_model/config.json
    ```
    
    Update the following lines to point to your `model/` directory:
@@ -308,13 +308,13 @@ print(result.success, result.message)
 
 3. **Kinyarwanda model file not found:**
    ```
-   Unable to load synthesizer: [Errno 2] No such file or directory: '.../model/config.json'
+   Unable to load synthesizer: [Errno 2] No such file or directory: '.../rw_model/config.json'
    ```
-   **Solution**: Verify all Kinyarwanda model files are in the `model/` directory and that `kinyarwandaModelPath` in the configuration file points to the correct location.
+   **Solution**: Verify all Kinyarwanda model files are in the `models/rw_model/` directory and that `kinyarwandaModelPath` in the configuration file points to the correct location.
 
 4. **English XTTS v2 model not found:**
    ```
-   [Errno 2] No such file or directory: '.../models/v2.0.2/config.json'
+   [Errno 2] No such file or directory: '.../models/en_model/v2.0.2/config.json'
    ```
    **Solution**: Download the XTTS v2 model (see step 4) and verify `englishModelPath` in the configuration file.
 
